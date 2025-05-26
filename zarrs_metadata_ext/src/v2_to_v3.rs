@@ -271,14 +271,16 @@ pub fn array_metadata_v2_to_v3(
     // Fill value
     let mut fill_value = fill_value_metadata_v2_to_v3(&array_metadata_v2.fill_value)
         .or_else(|| {
+            // Support number "null" fill values by aliasing to NaN
             // Support zarr-python encoded string arrays with a `null` fill value
             match data_type.name() {
                 "string" => Some(FillValueMetadataV3::from("")),
+                "<i8" | "<i16" | "<i32" | "<i64" | "<u8" | "<u16" | "<u32" | "<u64" | "<f4"
+                | "<f8" | "<c8" | "<c16" => Some(f32::NAN.into()),
                 _ => None,
             }
         })
         .ok_or_else(|| {
-            // TODO: How best to deal with null fill values? What do other implementations do?
             ArrayMetadataV2ToV3Error::UnsupportedFillValue(
                 data_type.to_string(),
                 array_metadata_v2.fill_value.clone(),
