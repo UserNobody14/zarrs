@@ -1,5 +1,8 @@
 //! Zarr V2 to V3 conversion.
 
+use core::f32;
+use std::num::NonZeroU64;
+
 use thiserror::Error;
 
 use crate::{
@@ -247,10 +250,15 @@ pub fn array_metadata_v2_to_v3(
     data_type_aliases_v3: &ExtensionAliasesDataTypeV3,
 ) -> Result<ArrayMetadataV3, ArrayMetadataV2ToV3Error> {
     let shape = array_metadata_v2.shape.clone();
+    let curr_chunk_grid: zarrs_metadata::ChunkShape = array_metadata_v2.chunks.clone();
+    let mut true_chunk_shape: Vec<NonZeroU64> = vec![];
+    for (dimv, chunk_size) in shape.iter().zip(curr_chunk_grid.iter()) {
+        true_chunk_shape.push(NonZeroU64::new(dimv / chunk_size.get()).unwrap());
+    }
     let chunk_grid = MetadataV3::new_with_serializable_configuration(
         zarrs_registry::chunk_grid::REGULAR.to_string(),
         &RegularChunkGridConfiguration {
-            chunk_shape: array_metadata_v2.chunks.clone(),
+            chunk_shape: true_chunk_shape.into(),
         },
     )?;
 
@@ -276,7 +284,9 @@ pub fn array_metadata_v2_to_v3(
             match data_type.name() {
                 "string" => Some(FillValueMetadataV3::from("")),
                 "<i8" | "<i16" | "<i32" | "<i64" | "<u8" | "<u16" | "<u32" | "<u64" | "<f4"
-                | "<f8" | "<c8" | "<c16" | "int64" | "uint64" => Some(f32::NAN.into()),
+                | "<f8" | "<c8" | "<c16" | "int64" | "uint64" => {
+                    Some(FillValueMetadataV3::from(f32::NAN))
+                }
                 _ => None,
             }
         })
