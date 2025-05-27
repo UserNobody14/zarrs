@@ -276,7 +276,7 @@ pub fn array_metadata_v2_to_v3(
             match data_type.name() {
                 "string" => Some(FillValueMetadataV3::from("")),
                 "<i8" | "<i16" | "<i32" | "<i64" | "<u8" | "<u16" | "<u32" | "<u64" | "<f4"
-                | "<f8" | "<c8" | "<c16" => Some(f32::NAN.into()),
+                | "<f8" | "<c8" | "<c16" | "int64" | "uint64" => Some(f32::NAN.into()),
                 _ => None,
             }
         })
