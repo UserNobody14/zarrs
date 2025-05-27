@@ -50,7 +50,7 @@ pub enum ArrayMetadataV2ToV3Error {
     #[error("unsupported codec {_0} with configuration {_1:?}")]
     UnsupportedCodec(String, serde_json::Map<String, serde_json::Value>),
     /// An unsupported fill value.
-    #[error("unsupported fill value {_1:?} for data type {_0}")]
+    #[error("BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE bobble droble seeeeee unsupported fill value {_1:?} for data type {_0}")]
     UnsupportedFillValue(String, FillValueMetadataV2),
     /// Serialization/deserialization error.
     #[error("JSON serialization or deserialization error: {_0}")]
